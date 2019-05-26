@@ -1,0 +1,72 @@
+
+
+<div id=map></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Address</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @maps.each do |map| %>
+      <tr>
+        <td><%= map.address %></td>
+        <td><%= map.latitude %></td>
+        <td><%= map.longitude %></td>
+        <td><%= link_to 'Show', map %></td>
+        <td><%= link_to 'Edit', edit_map_path(map) %></td>
+        <td><%= link_to 'Destroy', map, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Map', new_map_path %>
+
+
+<script>
+  function initMap() {
+
+  let latlng = {lat: <%= @maps[0].latitude %>, lng: <%= @maps[0].longitude %>};
+
+  let map = new google.maps.Map(document.getElementById('map'), {  //mapに地図を読み込む
+      zoom: 15,                                                 //地図のズームを指定
+      center: latlng                                            //地図の中心を指定
+    });
+
+    
+    
+    let maps = <%= @maps.to_json.html_safe %>                    // json
+
+ for(let i=0; i<maps.length; i++){
+   let contentString = `住所：${maps[i]["address"]}`;
+
+
+   let marker = new google.maps.Marker({                        //マーカーの追加
+     position:{lat: maps[i].latitude , lng: maps[i].longitude}, //マーカーを立てる位置
+     map: map,                                                  //マーカーを立てる地図を指定
+     title: contentString
+  
+   });
+
+
+   marker.addListener ('click', function() {                    //マーカーにクリックイベントを追加
+      let infowindow = new google.maps.InfoWindow({             //吹き出しの追加
+       content: (this.title)                                    //吹き出しに表示する内容
+     });
+    infowindow.open(map, this);                                 //吹き出しの表示
+  });
+}                                                               //for文終わり
+}                                                               //function終わり
+</script>
+
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyB8xNRCT4K6UpvYpjeaFYVm2nuGQ79WYoA&callback=initMap">
+</script>
